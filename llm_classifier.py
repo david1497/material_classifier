@@ -3,6 +3,10 @@ import os
 import json
 from langchain import HuggingFaceHub, PromptTemplate, LLMChain
 import langchain
+from langchain.llms import OpenAI
+import chromadb
+from langchain.agents import AgentType, initialize_agent, load_tools
+
 
 #* consider the following tools to use with LangChain:
 #* The Home Depot API 
@@ -11,11 +15,6 @@ import langchain
 #* Google Product API
 #* Ebay Search Engine Results API
 #*
-
-#%%
-
-from langchain.agents import AgentType, initialize_agent, load_tools
-
 # %%
 with open("config.json", 'r') as json_file:
     configs = json.load(json_file)
@@ -24,27 +23,12 @@ os.environ["OPENAI_API_KEY"] = configs['secrets']['OPENAI_API_KEY']
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = configs['secrets']['HUGGING_FACE_TOKEN']
 os.environ["SERPAPI_API_KEY"] = configs['secrets']['SERPAPI_KEY']
 
-material_categories = [
-    'Concrete and Cement Products',
-    'Steel and Metal Products',
-    'Wood and Timber Products',
-    'Electrical and Wiring Components',
-    'Plumbing and Pipe Fittings',
-    'Insulation and Sealants',
-    'Roofing Materials',
-    'Flooring and Tiles',
-    'Paints and Coatings',
-    'Windows and Doors',
-    'Fixtures and Fittings',
-    'HVAC (Heating, Ventilation, and Air Conditioning) Systems',
-    'Masonry and Brickwork Materials',
-    'Landscaping and Outdoor Supplies',
-    'Safety Equipment and Personal Protective Gear'
-]
+chroma_client = chromadb.Client()
+collection = chroma_client.create_collection(name="material_classification")
 
 #%%
-llm = HuggingFaceHub(repo_id="facebook/nllb-200-distilled-600M",
-                     model_kwargs={"temperature":0.1, "max_length":64, "src_lang":'English', "tgt_lang":"Finnish"})
+llm = HuggingFaceHub(
+    repo_id="timpal0l/mdeberta-v3-base-squad2")
 
 
 #%%
@@ -76,7 +60,75 @@ print(p)
 
 
 # %%
-material_description = 'Site Secure Chest 4 x 4 x 2'
-query = f"Given the following material categories {material_categories}, please classify the '{material_description}'"
-agent.run(query)
+material_description = 'Board 3x4 oak'
+
+llm = OpenAI(temperature=0.9)
+prompt = PromptTemplate.from_template("Given the following material categories {material_categories}, please classify the '{material_description}'")
+# prompt.format(material_categories=material_categories, material_description=material_description)
+chain = LLMChain(llm=llm, prompt=prompt, verbose=True)
+response = chain.run(material_categories=material_categories, material_description=material_description)
+print(response)
+
+
+
+#%%
+from transformers import pipeline
+
+final_list = [
+    'Access Panels',
+    'Board',
+    'CITB/Training',
+    'Def Heads&Ply Precuts',
+    'Dot/Dab',
+    'Finishing (Skim, Joint, Paint, etc)',
+    'Fire Stopping',
+    'Fire Strip',
+    'Fixings',
+    'H&S',
+    'ID Cards',
+    'Insulation',
+    'Internet Order',
+    'Logistics',
+    'Metal',
+    'Misc',
+    'Overheads',
+    'Peter Harper',
+    'Phone Bill',
+    'Plant',
+    'Protection',
+    'Purfleet',
+    'QR Codes?',
+    'Rebate',
+    'Screws',
+    'Sealant',
+    'Service Fee',
+    'Setout Material',
+    'Sockets',
+    'Soffit Slab',
+    'Steel',
+    'Timber',
+    'Tools, Bits, Blades, etc',
+    'Unknown',
+    'VCL',
+    'Waste',
+    'Waterproof'
+]
+material_description = 'Drill Bit SDS Plus 5.5x160'
+
+# %%
+# import torch
+
+
+qa_model = pipeline("question-answering", "timpal0l/mdeberta-v3-base-squad2")
+question = f"How should {material_description} be classified?"
+context = f"Given the following material categories {final_list}"
+qa_model(question = question, context = context)
+# {'score': 0.975547730922699, 'start': 28, 'end': 36, 'answer': ' Sweden.'}
+
+# %%
+
+classifier = pipeline("zero-shot-classification",
+                      model="facebook/bart-large-mnli")
+
+classifier(material_description, final_list)
 # %%
