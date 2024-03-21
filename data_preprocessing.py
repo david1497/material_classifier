@@ -38,6 +38,16 @@ accruals_df['simple_supplier_name'] = accruals_df['supplier'].str.split(' - ').s
 
 #%%
 def get_wordnet_pos(treebank_tag):
+    """get_wordnet_pos
+
+    Sucks
+
+    Args:
+        treebank_tag (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     if treebank_tag.startswith('J'):
         return wordnet.ADJ
     elif treebank_tag.startswith('V'):
@@ -101,4 +111,136 @@ final_list = [
 #* CamelCase for all material categories, removed Missing since we have Unknown.
 #* Unknown may still overlap with the Misc
 #* What about Peter Harper? Do we need it as a separate category or we can include that in service fee or Misc
+# %%
+
+
+
+
+
+
+
+
+import pandas as pd
+
+#%%
+full_materials = '/home/vadim/P&R data/All Materials S4 S5 & FR with Catagories FF.xlsx'
+full_materials_data_df = pd.read_excel(full_materials, sheet_name='Data')
+full_materials_screw_df = pd.read_excel(full_materials, sheet_name='Screw Count')
+
+# %%
+target_columns = [
+    'Cost Code', 
+    'Description', 
+    'SubCategory', 
+    'MainCategory', 
+    'Supplier/Subcontractor',
+    'Src',
+    'Tran Type',
+    'Internal Ref', 
+    'External Ref', 
+    'PO Number', 
+    'Quantity',
+    'Unit']
+
+full_materials_data_df = full_materials_data_df[target_columns]
+full_materials_screw_df = full_materials_screw_df[target_columns]
+
+#%%
+full_mateirals_df = pd.concat([full_materials_screw_df, full_materials_data_df], axis='rows')
+
+
+#%%
+rename_mapping = {
+    'service fee':'Service Fee',
+    'Not Found':'Unknown',
+    'Plant':'Plant',
+    'Dot / Dab':'Dot/Dab',
+    'sockets': 'Electrical Components',#'Sockets',
+    'fire stopping': 'Fire Stopping',
+    'metal': 'Metal',
+    'plant': 'Plant',
+    'Peter Harper': 'Service Fee', # Should it be in Service Fee?
+    'Sealant': 'Sealant',
+    'misc': 'Misc',
+    'protection': 'Protection',
+    # 'firestrip':'Fire Strip', # should we include it in Fire Stopping?
+    'firestrip': 'Fire Stopping',
+    'vcl': 'VCL',
+    'access panels': 'Access Panels',
+    'CITB/Training': 'Training', # is CITB a globally known abbreviation or industry related?
+    'Insulation': 'Insulation',
+    'Misc': 'Misc',
+    # 'QR Codes?':'QR Codes?', # Misc?
+    'QR Codes?': 'Misc',
+    'waterproof': 'Waterproof',
+    'DefHeads & Ply Precuts': 'Def Heads & Ply Precuts',
+    'board': 'Board',
+    'Screws': 'Fixings and Fasteners',#'Screws',
+    'waste': 'Waste',
+    'logistics': 'Logistics',
+    # 'steel':'Steel', # Can we consider it metal
+    'steel':'Metal', # Can we consider it metal
+    'timber': 'Timber', # Timber or Wood?
+    # 'ID Cards': 'ID Cards', # Do we have so many to keep it as a cat or we can put it Misc
+    'ID Cards': 'Misc',
+    # 'purfleet': 'Purfleet',
+    'purfleet': 'Misc',
+    'VCL':'VCL',
+    'H&S': 'Health and Safety', #'H&S',
+    'sealant': 'Sealant',
+    # 'Phone Bill' : 'Phone Bill', # Maybe can be service fees
+    'Phone Bill' : 'Service Fee',
+    'Tools, Bits, Blades, Etc' : 'Tools and Accessories', #'Tools, Bits, Blades, etc',
+    'Finishing (Skim/Joint/Paint etc)': 'Finishing',
+    'Service Fee': 'Service Fee',
+    'unknown': 'Unknown',
+    'Fixings':'Fixings and Fasteners',#'Fixings',
+    'soffit slab':'Soffit Slab',
+    'Setout Material': 'Setout Material',
+    'Internet Order': 'Internet Order'
+}
+
+final_list_of_categories = [
+    'Access Panels',
+    'Board',
+    'Def Heads & Ply Precuts',
+    'Dot/Dab',
+    'Electrical Components',
+    'Finishing',
+    'Fire Stopping',
+    'Fixings and Fasteners',
+    'Health and Safety',
+    'Insulation',
+    'Internet Order',
+    'Logistics',
+    'Metal',
+    'Misc',
+    'Plant',
+    'Protection',
+    'Sealant',
+    'Service Fee',
+    'Setout Material',
+    'Soffit Slab',
+    'Timber',
+    'Tools and Accessories',
+    'Training',
+    'Unknown',
+    'VCL',
+    'Waste',
+    'Waterproof'
+]
+
+# %%
+
+full_mateirals_df['MainCategory'] = full_mateirals_df['MainCategory'].replace(rename_mapping)
+# %%
+full_mateirals_df.to_csv('full_material.csv')
+
+
+
+#%%
+distinct_materials = pd.read_csv('sliced_unclassified_materials.csv')
+distinct_materials = distinct_materials.drop_duplicates(subset=['Description'])
+distinct_materials = distinct_materials.drop_duplicates(subset=['Supplier/Subcontractor'])
+distinct_materials.to_csv('distinct_materials.csv')
 # %%

@@ -8,6 +8,31 @@ import chromadb
 from langchain.agents import AgentType, initialize_agent, load_tools
 
 
+#%%
+import serpapi
+# from serpapi import GoogleSearch
+
+#%%
+params = {
+  "engine": "google",
+  "q": "Fresh Bagels",
+  "location": "Seattle-Tacoma, WA, Washington, United States",
+  "hl": "en",
+  "gl": "us",
+  "google_domain": "google.com",
+  "num": "10",
+  "start": "10",
+  "safe": "active",
+  "api_key": "bda83714bab8ce2865270b80648e537bb290016ac73eeb8113ba22cd9907dee4"
+}
+
+
+search = serpapi.search(params)
+# results = search.get_dict()
+# organic_results = results["organic_results"]
+
+#%%
+
 #* consider the following tools to use with LangChain:
 #* The Home Depot API 
 #* Walmart Search Engine Results API

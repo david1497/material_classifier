@@ -2,6 +2,7 @@
 import pandas as pd
 import streamlit as st
 import os
+from llm_model import build_chain
 
 
 
@@ -30,6 +31,14 @@ if input_file is not None:
             
             file_content = pd.read_excel(input_file, sheet_name=sheet_name)
     
+    elif file_extension == '.csv':
+
+        file_content = pd.read_csv(input_file)
+
+    else:
+
+        st.text('Sorry buddy - wrong file format.')
+    
     file_columns = list(file_content.columns)
 
     st.dataframe(file_content.head(2))
@@ -44,5 +53,31 @@ if input_file is not None:
     focus_df = file_content[focus_columns]
     st.dataframe(focus_df.head(10))
 
-    st.text_area(label='Paste the categories you want to get as outcome')
+    output_labels = st.text_area(label='Paste the categories you want to get as outcome', 
+                 placeholder="['category1','category2','category3','category4']")
+    
+
+    output = []
+    st.text(focus_df.columns)
+
+    for index, row in focus_df.head(20).iterrows():
+        # st.text(row)
+        material_characterisitcs = f"""
+        Cost Code: {row['Cost Code']};
+        Description: {row['Description']};
+        Supplier/Subcontractor: {row['Supplier/Subcontractor']};
+        Src: {row['Src']};
+        Tran Type: {row['Tran Type']}; 
+        Internal Ref: {row['Internal Ref']};
+        External Ref: {row['External Ref']};
+        Quantity: {row['Quantity']};
+        Unit: {row['MeasureUnit']}""" 
+        chain = build_chain()
+        label = chain.invoke(material_characterisitcs)
+        st.text(row)
+        st.text(f">->->->-> {label}")
+
+        # output.append([row, label])
+
+
 
