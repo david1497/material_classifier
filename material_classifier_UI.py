@@ -1,8 +1,8 @@
 import pandas as pd
 import streamlit as st
 
+taxonomy_df = pd.read_csv('./taxonomy.csv', sep=',') 
 materials_df = pd.read_csv('./unclassified_materials.csv', sep=',')
-# taxonomy_df = pd.read_csv('./taxonomy.csv', sep=',') 
 
 categories = taxonomy_df['Category']
 subcategories = ['A', 'B', 'C', 'D', 'E']
