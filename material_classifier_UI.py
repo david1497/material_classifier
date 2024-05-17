@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 
 #materials_df = pd.read_csv('https://github.com/david1497/material_classifier/blob/main/unclassified_materials.csv', sep=',')
-taxonomy_df = pd.read_excel('https://github.com/david1497/material_classifier/blob/main/taxonomy.xlsx') 
+taxonomy_df = pd.read_excel('https://github.com/david1497/material_classifier/blob/main/taxonomy.xlsx', engine='openpyxl') 
 
 categories = taxonomy_df['Category']
 subcategories = ['A', 'B', 'C', 'D', 'E']
