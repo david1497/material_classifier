@@ -73,12 +73,15 @@ def main():
 
     # Next button to navigate to the next row
     if st.button("Next"):
+        materials_df['category'][idx] = selected_category
+        materials_df['subcategory'][idx] = selected_subcategory
         idx += 1
         if idx < len(materials_df):
             st.session_state['index'] = idx
         else:
             st.write("End of DataFrame reached. Thank you for your input!")
             st.write("Selected categories:", st.session_state['selected_categories'])
+        materials_df.to_csv('labeled_materials.csv')
 
 
 # Run the app
