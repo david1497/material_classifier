@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 
 materials_df = pd.read_csv('./unclassified_materials.csv', sep=',')
-taxonomy_df = pd.read_excel('./taxonomy.xlsx', engine='openpyxl') 
+taxonomy_df = pd.read_excel('./taxonomy.xlsx') 
 
 categories = taxonomy_df['Category']
 subcategories = ['A', 'B', 'C', 'D', 'E']
