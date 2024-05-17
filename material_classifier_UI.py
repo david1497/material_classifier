@@ -73,8 +73,8 @@ def main():
 
     # Next button to navigate to the next row
     if st.button("Next"):
-        materials_df['category'][idx] = selected_category
-        materials_df['subcategory'][idx] = selected_subcategory
+        materials_df.at[idx, 'category'] = selected_category
+        materials_df.at[idx, 'subcategory'] = selected_subcategory
         idx += 1
         if idx < len(materials_df):
             st.session_state['index'] = idx
