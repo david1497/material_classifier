@@ -1,11 +1,5 @@
 import subprocess
-
-# Define the pip command
-pip_command = ["pip", "install", "openpyxl"]
-
-# Run the pip command
-subprocess.run(pip_command)
-
+import openpyxl
 import pandas as pd
 import streamlit as st
 
